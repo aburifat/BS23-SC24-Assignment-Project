@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace BS23_SC24_Assignment_Backend.Controllers
 {
     [Route("api")]
     [ApiController]
-    [AllowAnonymous]
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -25,46 +25,88 @@ namespace BS23_SC24_Assignment_Backend.Controllers
 
         }
 
-        private User? AuthenticatedUser(UserLoginRequest user)
+        private User? AuthenticateUser(UserLoginRequest user)
         {
             return _context.Users
                 .Where(x => x.UserName == user.UserName && x.Password == user.Password)
                 .FirstOrDefault();
         }
 
-        private string GenerateToken(string userName)
+        private string GenerateToken(User user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Role, user.UserRole.Name)
+            };
+
             var token = new JwtSecurityToken(
                 _configuration["JwtSettings:Issuer"],
                 _configuration["JwtSettings:Audience"],
+                claims,
                 expires: DateTime.Now.AddMinutes(60),
                 signingCredentials: credentials
                 );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var encodedToken = new JwtSecurityTokenHandler().WriteToken(token);
+            return encodedToken;
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public IActionResult Login(UserLoginRequest request)
         {
-            var _userLoginResponse = new UserLoginResponse
-            {
-                Id = 0,
-                UserName = null,
-                AccessToken = null
-            };
-            var _user = AuthenticatedUser(request);
-            if (_user != null)
-            {
-                _userLoginResponse.Id = _user.Id;
-                _userLoginResponse.UserName = _user.UserName;
-                _userLoginResponse.AccessToken = GenerateToken(_user.UserName);
-            }
+            var user = AuthenticateUser(request);
 
-            return Ok(_userLoginResponse);
+            if (user != null)
+            {
+                if(user.UserRole == null)
+                {
+                    user.UserRole = _context.UserRoles
+                                .Where(x => x.Id == user.UserRoleId)
+                                .FirstOrDefault();
+                }
+                var userLoginResponse = new UserLoginResponse
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    UserRole = user.UserRole,
+                    AccessToken = GenerateToken(user)
+                };
+                return Ok(userLoginResponse);
+            }
+            return Unauthorized("Invalid credentials");
+        }
+
+        [HttpGet("AuthorizeCheck")]
+        [Authorize]
+        public IActionResult AuthorizeCheck()
+        {
+            return Ok();
+        }
+
+        [HttpGet("AuthorizeCheck2")]
+        [Authorize(Roles = "Administrator, Regular")]
+        public IActionResult AuthorizeCheck2()
+        {
+            return Ok();
+        }
+
+        [HttpGet("AdminCheck")]
+        [Authorize(Roles = "Administrator")]
+        public IActionResult AdminCheck()
+        {
+            return Ok();
+        }
+
+        [HttpGet("RegularCheck")]
+        [Authorize(Roles = "Regular")]
+        public IActionResult RegularCheck()
+        {
+            return Ok();
         }
     }
 }
