@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BS23_SC24_Assignment_Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240130154958_init")]
+    [Migration("20240130203706_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -37,40 +37,12 @@ namespace BS23_SC24_Assignment_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<long>("UserRoleId")
+                    b.Property<int>("UserRole")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserRoleId");
 
                     b.ToTable("User");
-                });
-
-            modelBuilder.Entity("BS23_SC24_Assignment_Backend.Models.UserRole", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UserRole");
-                });
-
-            modelBuilder.Entity("BS23_SC24_Assignment_Backend.Models.User", b =>
-                {
-                    b.HasOne("BS23_SC24_Assignment_Backend.Models.UserRole", "UserRole")
-                        .WithMany()
-                        .HasForeignKey("UserRoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("UserRole");
                 });
 #pragma warning restore 612, 618
         }

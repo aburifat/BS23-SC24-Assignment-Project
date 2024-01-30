@@ -1,4 +1,4 @@
-﻿using BS23_SC24_Assignment_Backend.Models;
+﻿using BS23_SC24_Assignment_Backend.Enums;
 
 namespace BS23_SC24_Assignment_Backend.Responses
 {

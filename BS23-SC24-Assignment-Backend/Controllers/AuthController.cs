@@ -1,4 +1,5 @@
 ﻿using BS23_SC24_Assignment_Backend.Context;
+using BS23_SC24_Assignment_Backend.Enums;
 using BS23_SC24_Assignment_Backend.Models;
 using BS23_SC24_Assignment_Backend.Requests;
 using BS23_SC24_Assignment_Backend.Responses;
@@ -25,11 +26,15 @@ namespace BS23_SC24_Assignment_Backend.Controllers
 
         }
 
-        private User? AuthenticateUser(UserLoginRequest user)
+        private User? AuthenticateUser(UserLoginRequest request)
         {
-            return _context.Users
-                .Where(x => x.UserName == user.UserName && x.Password == user.Password)
-                .FirstOrDefault();
+            var existingUser = _context.Users.FirstOrDefault(x => x.UserName == request.UserName);
+
+            if(existingUser != null && BCrypt.Net.BCrypt.Verify(request.Password, existingUser.Password))
+            {
+                return existingUser;
+            }
+            return null;
         }
 
         private string GenerateToken(User user)
@@ -40,7 +45,7 @@ namespace BS23_SC24_Assignment_Backend.Controllers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Role, user.UserRole.Name)
+                new Claim(ClaimTypes.Role, user.UserRole.ToString())
             };
 
             var token = new JwtSecurityToken(
@@ -63,12 +68,6 @@ namespace BS23_SC24_Assignment_Backend.Controllers
 
             if (user != null)
             {
-                if(user.UserRole == null)
-                {
-                    user.UserRole = _context.UserRoles
-                                .Where(x => x.Id == user.UserRoleId)
-                                .FirstOrDefault();
-                }
                 var userLoginResponse = new UserLoginResponse
                 {
                     Id = user.Id,
@@ -81,32 +80,52 @@ namespace BS23_SC24_Assignment_Backend.Controllers
             return Unauthorized("Invalid credentials");
         }
 
-        [HttpGet("AuthorizeCheck")]
-        [Authorize]
-        public IActionResult AuthorizeCheck()
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public IActionResult Register(UserRegistrationRequest request)
         {
-            return Ok();
-        }
+            bool isValid = true;
+            string message = "";
+            if (request.Password != request.ConfirmPassword) {
+                isValid = false;
+                message = "Both Password Didn't Match";
+            }
+            else if(_context.Users.Where(x=>x.UserName == request.UserName).Any())
+            {
+                isValid = false;
+                message = "Username already taken. Please try another one.";
+            }else if(_context.Users.Where(x => x.Email == request.Email).Any())
+            {
+                isValid = false;
+                message = "Email is in use. Try with another Email.";
+            }
 
-        [HttpGet("AuthorizeCheck2")]
-        [Authorize(Roles = "Administrator, Regular")]
-        public IActionResult AuthorizeCheck2()
-        {
-            return Ok();
-        }
+            if (!isValid)
+            {
+                return BadRequest(message);
+            }
 
-        [HttpGet("AdminCheck")]
-        [Authorize(Roles = "Administrator")]
-        public IActionResult AdminCheck()
-        {
-            return Ok();
-        }
+            // Password is hashed using BCrypt
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-        [HttpGet("RegularCheck")]
-        [Authorize(Roles = "Regular")]
-        public IActionResult RegularCheck()
-        {
-            return Ok();
+            User newUser = new User
+            {
+                UserName = request.UserName,
+                Password = hashedPassword,
+                Email = request.Email,
+                UserRole = UserRole.Regular
+            };
+            
+            _context.Users.Add(newUser);
+            int isSuccessful = _context.SaveChanges();
+            if(isSuccessful > 0)
+            {
+                return Ok("Registration successful");
+            }
+            else
+            {
+                return StatusCode(500, new { Message = "Internal Server Error" });
+            }
         }
     }
 }
