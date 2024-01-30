@@ -1,5 +1,8 @@
 
 using BS23_SC24_Assignment_Backend.Context;
+using BS23_SC24_Assignment_Backend.Requests;
+using BS23_SC24_Assignment_Backend.validators;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -42,6 +45,8 @@ namespace BS23_SC24_Assignment_Backend
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddScoped<AuthValidators>();
 
             var app = builder.Build();
 

@@ -3,12 +3,17 @@ using BS23_SC24_Assignment_Backend.Enums;
 using BS23_SC24_Assignment_Backend.Models;
 using BS23_SC24_Assignment_Backend.Requests;
 using BS23_SC24_Assignment_Backend.Responses;
+using BS23_SC24_Assignment_Backend.validators;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace BS23_SC24_Assignment_Backend.Controllers
 {
@@ -18,19 +23,20 @@ namespace BS23_SC24_Assignment_Backend.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly AppDbContext _context;
+        private readonly AuthValidators _authValidators;
 
-        public AuthController(IConfiguration configuration, AppDbContext appDbContext)
+        public AuthController(IConfiguration configuration, AppDbContext appDbContext, AuthValidators authValidators)
         {
             _configuration = configuration;
             _context = appDbContext;
-
+            _authValidators = authValidators;
         }
 
-        private User? AuthenticateUser(UserLoginRequest request)
+        private User AuthenticateUser(UserLoginRequest request)
         {
             var existingUser = _context.Users.FirstOrDefault(x => x.UserName == request.UserName);
 
-            if(existingUser != null && BCrypt.Net.BCrypt.Verify(request.Password, existingUser.Password))
+            if (existingUser != null && BCrypt.Net.BCrypt.Verify(request.Password, existingUser.Password))
             {
                 return existingUser;
             }
@@ -64,6 +70,13 @@ namespace BS23_SC24_Assignment_Backend.Controllers
         [HttpPost("login")]
         public IActionResult Login(UserLoginRequest request)
         {
+            ValidationResponse validationResponse = _authValidators.UserLoginRequestValidator(request); // validation for the login input
+
+            if (!validationResponse.IsValid)
+            {
+                return BadRequest(validationResponse);
+            }
+
             var user = AuthenticateUser(request);
 
             if (user != null)
@@ -72,7 +85,9 @@ namespace BS23_SC24_Assignment_Backend.Controllers
                 {
                     Id = user.Id,
                     UserName = user.UserName,
+                    Email = user.Email,
                     UserRole = user.UserRole,
+                    UserRoleName = user.UserRole.ToString(),
                     AccessToken = GenerateToken(user)
                 };
                 return Ok(userLoginResponse);
@@ -84,30 +99,17 @@ namespace BS23_SC24_Assignment_Backend.Controllers
         [HttpPost("register")]
         public IActionResult Register(UserRegistrationRequest request)
         {
-            bool isValid = true;
-            string message = "";
-            if (request.Password != request.ConfirmPassword) {
-                isValid = false;
-                message = "Both Password Didn't Match";
-            }
-            else if(_context.Users.Where(x=>x.UserName == request.UserName).Any())
-            {
-                isValid = false;
-                message = "Username already taken. Please try another one.";
-            }else if(_context.Users.Where(x => x.Email == request.Email).Any())
-            {
-                isValid = false;
-                message = "Email is in use. Try with another Email.";
-            }
+            ValidationResponse validationResponse = _authValidators.UserRegistrationRequestValidator(request); // validation for the register data
 
-            if (!isValid)
+            if (!validationResponse.IsValid)
             {
-                return BadRequest(message);
+                return BadRequest(validationResponse);
             }
 
             // Password is hashed using BCrypt
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
+            // Creating Ragular User
             User newUser = new User
             {
                 UserName = request.UserName,
