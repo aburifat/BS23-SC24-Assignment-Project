@@ -58,7 +58,7 @@ namespace BS23_SC24_Assignment_Backend.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login(UserLoginRequest request)
+        public IActionResult Login(UserLoginRequest request)
         {
             ValidationResponse validationResponse = _authValidators.UserLoginRequestValidator(request); // validation for the login input
 
@@ -73,6 +73,8 @@ namespace BS23_SC24_Assignment_Backend.Controllers
             {
                 var userLoginResponse = new UserLoginResponse
                 {
+                    IsValid = true,
+                    Message = "Login Successful",
                     Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
@@ -82,12 +84,14 @@ namespace BS23_SC24_Assignment_Backend.Controllers
                 };
                 return Ok(userLoginResponse);
             }
-            return Unauthorized("Invalid credentials");
+            validationResponse.IsValid = false;
+            validationResponse.Message = "Invalid Credentials";
+            return Unauthorized(validationResponse);
         }
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<IActionResult> Register(UserRegistrationRequest request)
+        public IActionResult Register(UserRegistrationRequest request)
         {
             ValidationResponse validationResponse = _authValidators.UserRegistrationRequestValidator(request); // validation for the register data
 
@@ -112,12 +116,21 @@ namespace BS23_SC24_Assignment_Backend.Controllers
             int isSuccessful = _context.SaveChanges();
             if(isSuccessful > 0)
             {
-                return Ok("Registration successful");
+                validationResponse.IsValid = true;
+                validationResponse.Message = "Registration successful";
+                return Ok(validationResponse);
             }
             else
             {
                 return StatusCode(500, new { Message = "Internal Server Error" });
             }
+        }
+
+        [Authorize]
+        [HttpGet("token-validity-check")]
+        public IActionResult TokenValidityCheck()
+        {
+            return Ok(new { isValid = true });
         }
     }
 }

@@ -1,52 +1,76 @@
 import { useState } from "react";
-import { Navigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { LoginUserService } from "../../httpService/authServices";
 
 export default function Login() {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     try {
       const loginDetails = {
         userName,
         password,
       };
-      var data = LoginUserService(loginDetails);
-      const payload = (await data).data;
+      var response = await LoginUserService(loginDetails);
+      const payload = response.data;
+      localStorage.setItem("userId", payload.id);
+      localStorage.setItem("userName", payload.userName);
+      localStorage.setItem("email", payload.email);
+      localStorage.setItem("userRole", payload.userRole);
+      localStorage.setItem("userRoleName", payload.userRoleName);
       localStorage.setItem("accessToken", payload.accessToken);
-      Navigate("/home", { replace: true });
+      setIsSuccess(true);
+      setMessage(response.data.message);
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
     } catch (error) {
-      console.error("Login failed: ", error);
+      setMessage(error.response.data.message);
     }
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <label>
-          Username:
-          <input
-            type="text"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-          />
-        </label>
-        <br />
-        <label>
-          Password:
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </label>
-        <br />
-        <button type="submit">Login</button>
-      </form>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="max-w-md w-full p-6 rounded-md shadow-md">
+        <h2 className="text-2xl font-semibold mb-6">Login</h2>
+        {message &&
+          (isSuccess ? (
+            <div className="mb-4 text-green-600">{message}</div>
+          ) : (
+            <div className="mb-4 text-red-600">{message}</div>
+          ))}
+        <form onSubmit={handleLogin}>
+          <label className="block mb-4">
+            <span className="text-white-700">Username:</span>
+            <input
+              type="text"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              className="text-black mt-1 p-2 block w-full rounded-md border-gray-300"
+            />
+          </label>
+          <label className="block mb-4">
+            <span className="text-white-700">Password:</span>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="text-black mt-1 p-2 block w-full rounded-md border-gray-300"
+            />
+          </label>
+          <button
+            type="submit"
+            className="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600"
+          >
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
