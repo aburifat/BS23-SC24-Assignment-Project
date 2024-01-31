@@ -6,7 +6,7 @@ namespace BS23_SC24_Assignment_Backend.Managers.Security
     public class AuthenticatedUser : IAuthenticatedUser
     {
         public long Id { get; private set; }
-        public string UserName { get; private set; }
+        public string? UserName { get; private set; }
         public UserRole UserRole { get; private set; }
 
         public AuthenticatedUser(IHttpContextAccessor httpContextAccessor)

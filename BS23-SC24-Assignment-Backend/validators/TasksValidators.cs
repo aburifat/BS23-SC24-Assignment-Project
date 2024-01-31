@@ -11,21 +11,16 @@ namespace BS23_SC24_Assignment_Backend.validators
 
             string message = "";
 
-            List<string> details = new List<string>();
-
             if (request.Title == "" || request.Description == "" || request.Status == "") // Empty Input Field Case 
             {
                 isValid = false;
-                details.Add("Input fields can't be empty.");
+                message = "Input fields can't be empty.";
             }
 
-            if (!isValid) message = "One or more validation errors occurred.";
-
-            ValidationResponse validationResponse = new ValidationResponse
+            ValidationResponse validationResponse = new()
             {
                 IsValid = isValid,
                 Message = message,
-                Details = details
             };
             return validationResponse;
         }

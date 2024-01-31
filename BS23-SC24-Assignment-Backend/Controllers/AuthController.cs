@@ -4,35 +4,24 @@ using BS23_SC24_Assignment_Backend.Models;
 using BS23_SC24_Assignment_Backend.Requests;
 using BS23_SC24_Assignment_Backend.Responses;
 using BS23_SC24_Assignment_Backend.validators;
-using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace BS23_SC24_Assignment_Backend.Controllers
 {
     [Route("api")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController(IConfiguration configuration, AppDbContext appDbContext, AuthValidators authValidators) : ControllerBase
     {
-        private readonly IConfiguration _configuration;
-        private readonly AppDbContext _context;
-        private readonly AuthValidators _authValidators;
+        private readonly IConfiguration _configuration = configuration;
+        private readonly AppDbContext _context = appDbContext;
+        private readonly AuthValidators _authValidators = authValidators;
 
-        public AuthController(IConfiguration configuration, AppDbContext appDbContext, AuthValidators authValidators)
-        {
-            _configuration = configuration;
-            _context = appDbContext;
-            _authValidators = authValidators;
-        }
-
-        private User AuthenticateUser(UserLoginRequest request)
+        private User? AuthenticateUser(UserLoginRequest request)
         {
             var existingUser = _context.Users.FirstOrDefault(x => x.UserName == request.UserName);
 
@@ -50,9 +39,9 @@ namespace BS23_SC24_Assignment_Backend.Controllers
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Role, user.UserRole.ToString())
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new(ClaimTypes.Name, user.UserName),
+                new(ClaimTypes.Role, user.UserRole.ToString())
             };
 
             var token = new JwtSecurityToken(
@@ -111,7 +100,7 @@ namespace BS23_SC24_Assignment_Backend.Controllers
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
             // Creating Ragular User
-            User newUser = new User
+            User newUser = new()
             {
                 UserName = request.UserName,
                 Password = hashedPassword,

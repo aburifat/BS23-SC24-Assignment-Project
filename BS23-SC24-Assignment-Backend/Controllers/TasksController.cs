@@ -5,26 +5,17 @@ using BS23_SC24_Assignment_Backend.Requests;
 using BS23_SC24_Assignment_Backend.Responses;
 using BS23_SC24_Assignment_Backend.validators;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 
 namespace BS23_SC24_Assignment_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TasksController : ControllerBase
+    public class TasksController(AppDbContext context, IAuthenticatedUser authenticatedUser, TasksValidators tasksValidators) : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IAuthenticatedUser _authenticatedUser;
-        private readonly TasksValidators _tasksValidators;
-
-        public TasksController(AppDbContext context, IAuthenticatedUser authenticatedUser, TasksValidators tasksValidators)
-        {
-            _context = context;
-            _authenticatedUser = authenticatedUser;
-            _tasksValidators = tasksValidators;
-        }
+        private readonly AppDbContext _context = context;
+        private readonly IAuthenticatedUser _authenticatedUser = authenticatedUser;
+        private readonly TasksValidators _tasksValidators = tasksValidators;
 
         [Authorize]
         [HttpGet]
@@ -32,17 +23,19 @@ namespace BS23_SC24_Assignment_Backend.Controllers
         {
             try
             {
-                List <GetTaskResponse> response = _context.Tasks
-                                        .Where(x => x.UserId == _authenticatedUser.Id)
-                                        .Select(task => new GetTaskResponse
-                                        {
-                                            Id = task.Id,
-                                            Title = task.Title,
-                                            Description = task.Description,
-                                            Status = task.Status,
-                                            UserId = task.UserId
-                                        })
-                                        .ToList();
+                List <GetTaskResponse> response =
+                [
+                    .. _context.Tasks
+                    .Where(x => x.UserId == _authenticatedUser.Id)
+                    .Select(task => new GetTaskResponse
+                    {
+                        Id = task.Id,
+                        Title = task.Title,
+                        Description = task.Description,
+                        Status = task.Status,
+                        UserId = task.UserId
+                    })
+                ];
                
                 return Ok(response);
             }
@@ -58,16 +51,18 @@ namespace BS23_SC24_Assignment_Backend.Controllers
         {
             try
             {
-                List<GetTaskResponse> response = _context.Tasks
-                                        .Select(task => new GetTaskResponse
-                                        {
-                                            Id = task.Id,
-                                            Title = task.Title,
-                                            Description = task.Description,
-                                            Status = task.Status,
-                                            UserId = task.UserId
-                                        })
-                                        .ToList();
+                List<GetTaskResponse> response =
+                [
+                    .. _context.Tasks
+                    .Select(task => new GetTaskResponse
+                    {
+                        Id = task.Id,
+                        Title = task.Title,
+                        Description = task.Description,
+                        Status = task.Status,
+                        UserId = task.UserId
+                    })
+                ];
 
                 return Ok(response);
             }
@@ -90,7 +85,7 @@ namespace BS23_SC24_Assignment_Backend.Controllers
 
             try
             {
-                Tasks task = new Tasks
+                Tasks task = new()
                 {
                     Title = request.Title,
                     Description = request.Description,
@@ -100,7 +95,7 @@ namespace BS23_SC24_Assignment_Backend.Controllers
                 _context.Tasks.Add(task);
                 _context.SaveChanges();
 
-                GetTaskResponse response = new GetTaskResponse
+                GetTaskResponse response = new()
                 {
                     Id = task.Id,
                     Title = task.Title,
@@ -146,7 +141,7 @@ namespace BS23_SC24_Assignment_Backend.Controllers
                 task.Status = request.Status;
                 _context.SaveChanges();
 
-                GetTaskResponse response = new GetTaskResponse
+                GetTaskResponse response = new()
                 {
                     Id = task.Id,
                     Title = task.Title,

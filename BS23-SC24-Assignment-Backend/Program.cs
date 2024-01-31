@@ -1,9 +1,7 @@
 
 using BS23_SC24_Assignment_Backend.Context;
 using BS23_SC24_Assignment_Backend.Managers.Security;
-using BS23_SC24_Assignment_Backend.Requests;
 using BS23_SC24_Assignment_Backend.validators;
-using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
