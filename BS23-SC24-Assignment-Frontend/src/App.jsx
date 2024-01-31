@@ -1,5 +1,5 @@
-import LandingPage from "./components/landingPage/landingPage";
+import IndexRoute from "./router/IndexRoute";
 
 export default function App() {
-  return <LandingPage />;
+  return <IndexRoute />;
 }
