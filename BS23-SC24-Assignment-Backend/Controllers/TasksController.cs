@@ -52,6 +52,31 @@ namespace BS23_SC24_Assignment_Backend.Controllers
             }
         }
 
+        [Authorize(Roles = "Administrator")]
+        [HttpGet("All")]
+        public IActionResult GetAllTasks()
+        {
+            try
+            {
+                List<GetTaskResponse> response = _context.Tasks
+                                        .Select(task => new GetTaskResponse
+                                        {
+                                            Id = task.Id,
+                                            Title = task.Title,
+                                            Description = task.Description,
+                                            Status = task.Status,
+                                            UserId = task.UserId
+                                        })
+                                        .ToList();
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [Authorize]
         [HttpPost]
         public IActionResult PostTask(CreateUpdateTaskRequest request)
@@ -74,12 +99,98 @@ namespace BS23_SC24_Assignment_Backend.Controllers
                 };
                 _context.Tasks.Add(task);
                 _context.SaveChanges();
-                return Ok("Task added successfully");
+
+                GetTaskResponse response = new GetTaskResponse
+                {
+                    Id = task.Id,
+                    Title = task.Title,
+                    Description = task.Description,
+                    Status = task.Status,
+                    UserId = task.UserId
+                };
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
+
+        [Authorize]
+        [HttpPut("{id}")]
+        public IActionResult UpdateTask([FromRoute] long id, [FromBody] CreateUpdateTaskRequest request)
+        {
+            ValidationResponse validationResponse = _tasksValidators.CreateUpdateTasksValidator(request); // validation for the tasks input
+
+            if (!validationResponse.IsValid)
+            {
+                return BadRequest(validationResponse);
+            }
+
+            try
+            {
+                var task = _context.Tasks.Where(x=>x.Id == id).FirstOrDefault();
+
+                if (task == null)
+                {
+                    return NotFound("Task not found");
+                }
+                else if (task.UserId != _authenticatedUser.Id && _authenticatedUser.UserRole != Enums.UserRole.Administrator)
+                {
+                    return Unauthorized("You are not authorized to update the task.");
+                }
+
+                task.Title = request.Title;
+                task.Description = request.Description;
+                task.Status = request.Status;
+                _context.SaveChanges();
+
+                GetTaskResponse response = new GetTaskResponse
+                {
+                    Id = task.Id,
+                    Title = task.Title,
+                    Description = task.Description,
+                    Status = task.Status,
+                    UserId = task.UserId
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
+        }
+
+        [Authorize]
+        [HttpDelete("{id}")]
+        public IActionResult DeleteTask([FromRoute] long id)
+        {
+            try
+            {
+                var task = _context.Tasks.FirstOrDefault(x => x.Id == id);
+
+                if (task == null)
+                {
+                    return NotFound("Task not found");
+                }
+                else if (task.UserId != _authenticatedUser.Id && _authenticatedUser.UserRole != Enums.UserRole.Administrator)
+                {
+                    return Unauthorized("You are not authorized to delete the task.");
+                }
+
+                _context.Tasks.Remove(task);
+                _context.SaveChanges();
+
+                return Ok("Task deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
+        }
+
+
     }
 }
