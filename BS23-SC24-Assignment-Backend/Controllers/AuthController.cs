@@ -58,7 +58,7 @@ namespace BS23_SC24_Assignment_Backend.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public IActionResult Login(UserLoginRequest request)
+        public async Task<IActionResult> Login(UserLoginRequest request)
         {
             ValidationResponse validationResponse = _authValidators.UserLoginRequestValidator(request); // validation for the login input
 
@@ -87,7 +87,7 @@ namespace BS23_SC24_Assignment_Backend.Controllers
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public IActionResult Register(UserRegistrationRequest request)
+        public async Task<IActionResult> Register(UserRegistrationRequest request)
         {
             ValidationResponse validationResponse = _authValidators.UserRegistrationRequestValidator(request); // validation for the register data
 

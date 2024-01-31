@@ -3,6 +3,7 @@ using BS23_SC24_Assignment_Backend.Context;
 using BS23_SC24_Assignment_Backend.Managers.Security;
 using BS23_SC24_Assignment_Backend.validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -14,6 +15,14 @@ namespace BS23_SC24_Assignment_Backend
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.WithOrigins("http://localhost:5173", "https://localhost:5173").AllowAnyMethod().AllowAnyHeader();
+                });
+            });
 
             //Configure DbContext
 
@@ -64,6 +73,8 @@ namespace BS23_SC24_Assignment_Backend
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors();
 
             //Using the authentication
             app.UseAuthentication();
