@@ -10,6 +10,6 @@ namespace BS23_SC24_Assignment_Backend.Models
         public string UserName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public virtual UserRole UserRole { get; set; }
+        public UserRole UserRole { get; set; }
     }
 }

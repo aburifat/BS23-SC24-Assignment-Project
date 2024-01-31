@@ -1,5 +1,6 @@
 
 using BS23_SC24_Assignment_Backend.Context;
+using BS23_SC24_Assignment_Backend.Managers.Security;
 using BS23_SC24_Assignment_Backend.Requests;
 using BS23_SC24_Assignment_Backend.validators;
 using FluentValidation;
@@ -46,7 +47,13 @@ namespace BS23_SC24_Assignment_Backend
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            //Validators
             builder.Services.AddScoped<AuthValidators>();
+            builder.Services.AddScoped<TasksValidators>();
+
+            //Managers
+            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            builder.Services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
 
             var app = builder.Build();
 
