@@ -1,16 +1,19 @@
-import { Link } from "react-router-dom";
-import { TokenValidationService } from "../../httpService/authServices";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function LandingPage() {
-  const isTokenValid = async () => {
-    var response = await TokenValidationService();
-    if (response.status == 200) return true;
-    return false;
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    const confirmLogout = window.confirm("Are you sure you want to log out?");
+    if (confirmLogout) {
+      localStorage.setItem("userId", "0");
+      localStorage.removeItem("accessToken");
+      navigate("/login");
+    }
   };
 
   return (
     <div>
-      {isTokenValid ? (
+      {localStorage.getItem("userId") != "0" ? (
         <div>
           <Link to="/tasks">
             <button>My Tasks</button>
@@ -20,8 +23,8 @@ export default function LandingPage() {
               <button>All Tasks</button>
             </Link>
           )}
-          <Link to="/tasks/create">
-            <button>Register</button>
+          <Link>
+            <button onClick={handleLogout}>Logout</button>
           </Link>
         </div>
       ) : (
