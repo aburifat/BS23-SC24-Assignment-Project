@@ -16,10 +16,12 @@ namespace BS23_SC24_Assignment_Backend
             var builder = WebApplication.CreateBuilder(args);
 
             //Configure DbContext
+
             //POSTGreSQL
-            //builder.Services.AddDbContext<AppDbContext>(option => option.UseNpgsql(builder.Configuration["ConnectionStrings:DefaultConnection"]));
-            //SQLite
-            builder.Services.AddDbContext<AppDbContext>(option => option.UseSqlite("DataSource=test.db"));
+            builder.Services.AddDbContext<AppDbContext>(option => option.UseNpgsql(builder.Configuration["ConnectionStrings:DefaultConnection"]));
+            
+            //SQLite (Added for quick testing reasons)
+            //builder.Services.AddDbContext<AppDbContext>(option => option.UseSqlite("DataSource=test.db"));
 
             //JWT Authentication
             builder.Services.AddAuthentication(x =>
