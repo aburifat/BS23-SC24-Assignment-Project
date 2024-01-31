@@ -40,7 +40,7 @@ export default function Register() {
     } else {
       setIsLogin(false);
     }
-  });
+  }, [isLogin]);
 
   return (
     !isLogin && (

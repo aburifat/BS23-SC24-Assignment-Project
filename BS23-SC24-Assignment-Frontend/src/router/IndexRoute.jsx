@@ -12,9 +12,9 @@ export default function IndexRoute() {
       <Route path="/" element={<GetMyTaskList />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/tasks/all" element={<GetTaskList />} />
-      <Route path="/tasks/create" element={<CreateTask />} />
-      <Route path="/tasks/update/:id" element={<UpdateTask />} />
+      <Route path="/all" element={<GetTaskList />} />
+      <Route path="/create" element={<CreateTask />} />
+      <Route path="/update/:id" element={<UpdateTask />} />
     </Routes>
   );
 }

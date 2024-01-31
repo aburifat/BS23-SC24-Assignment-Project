@@ -42,7 +42,7 @@ export default function Login() {
     } else {
       setIsLogin(false);
     }
-  });
+  }, [isLogin]);
 
   return (
     !isLogin && (

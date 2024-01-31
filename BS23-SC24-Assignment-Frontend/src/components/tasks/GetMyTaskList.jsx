@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GetMyTasksService } from "../../httpService/tasksServices";
+import {
+  DeleteTasksService,
+  GetMyTasksService,
+} from "../../httpService/tasksServices";
 
 export default function GetMyTaskList() {
   const [isLogin, setIsLogin] = useState(false);
@@ -26,6 +29,20 @@ export default function GetMyTaskList() {
     }
   };
 
+  const handleDeleteTask = async (taskId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this task?"
+    );
+    if (confirmDelete) {
+      try {
+        await DeleteTasksService(taskId);
+        fetchTasks();
+      } catch (error) {
+        console.error("Error deleting task:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (userId != "0") {
@@ -34,27 +51,66 @@ export default function GetMyTaskList() {
     } else {
       navigate("/login");
     }
-  });
+  }, [isLogin]);
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col items-center justify-center">
       {isLogin && (
         <>
-          <div>Task List:</div>
-          <ul>
-            {tasks.map((task) => (
-              <li key={task.id}>{task.title}</li>
-            ))}
-          </ul>
-          <Link to="/tasks/create">
-            <button>Create Task</button>
-          </Link>
-          <Link to="/tasks/update/1">
-            {" "}
-            {/* Replace with the appropriate task ID */}
-            <button>Update Task</button>
-          </Link>
-          <button onClick={handleLogout}>Logout</button>
+          <h2 className="text-2xl font-semibold mb-4">Task List (Own)</h2>
+          <table className="border-collapse border w-[95%] mb-4">
+            <thead>
+              <tr className="bg-teal-950">
+                <th className="border p-2">Title</th>
+                <th className="border p-2">Description</th>
+                <th className="border p-2">Status</th>
+                <th className="border p-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tasks.map((task) => (
+                <tr key={task.id} className="bg-teal-800">
+                  <td className="border p-2">{task.title}</td>
+                  <td className="border p-2">{task.description}</td>
+                  <td className="border p-2">{task.status}</td>
+                  <td className="border p-2">
+                    <Link to={`/update/${task.id}`}>
+                      <button className="bg-blue-500 text-white px-2 py-1 mr-2 hover:bg-blue-600">
+                        Update
+                      </button>
+                    </Link>
+                    <button
+                      onClick={() => handleDeleteTask(task.id)}
+                      className="bg-red-500 text-white px-2 py-1 hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="flex justify-end">
+            {localStorage.getItem("userRoleName") == "Administrator" && (
+              <Link to="/all">
+                <button className="bg-blue-500 text-white px-4 py-2 mr-2 hover:bg-blue-600">
+                  All Tasks
+                </button>
+              </Link>
+            )}
+            <Link to="/create">
+              <button className="bg-green-700 text-white px-4 py-2 mr-2 hover:bg-green-600">
+                Create Task
+              </button>
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white px-4 py-2 hover:bg-red-600"
+            >
+              Logout
+            </button>
+          </div>
         </>
       )}
     </div>

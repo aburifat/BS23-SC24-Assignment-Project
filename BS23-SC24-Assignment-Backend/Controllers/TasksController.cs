@@ -29,6 +29,8 @@ namespace BS23_SC24_Assignment_Backend.Controllers
                     .Where(x => x.UserId == _authenticatedUser.Id)
                     .Select(task => new GetTaskResponse
                     {
+                        IsValid = true,
+                        Message = "",
                         Id = task.Id,
                         Title = task.Title,
                         Description = task.Description,
@@ -42,6 +44,55 @@ namespace BS23_SC24_Assignment_Backend.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpGet("{id}")]
+        public IActionResult GetTaskById([FromRoute] long id)
+        {
+            try
+            {
+                GetTaskResponse response = new GetTaskResponse
+                {
+                    IsValid = false,
+                    Message = "You don't have the permission to view the task!"
+                };
+
+                var task = _context.Tasks
+                    .Where(x => x.Id == id)
+                    .FirstOrDefault();
+
+                if(task != null && (task.Id == _authenticatedUser.Id || _authenticatedUser.UserRole == Enums.UserRole.Administrator))
+                {
+                    response = new GetTaskResponse
+                    {
+                        IsValid = true,
+                        Message = "Task successfully fetched.",
+                        Id = task.Id,
+                        Title = task.Title,
+                        Description = task.Description,
+                        Status = task.Status,
+                        UserId = task.UserId
+                    };
+                }
+                if (response.IsValid)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return Unauthorized(response);
+                }
+            }
+            catch (Exception ex)
+            {
+                GetTaskResponse response = new GetTaskResponse
+                {
+                    IsValid = false,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
             }
         }
 
@@ -97,6 +148,8 @@ namespace BS23_SC24_Assignment_Backend.Controllers
 
                 GetTaskResponse response = new()
                 {
+                    IsValid = true,
+                    Message = "Task created successfully",
                     Id = task.Id,
                     Title = task.Title,
                     Description = task.Description,
@@ -108,7 +161,9 @@ namespace BS23_SC24_Assignment_Backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+                validationResponse.IsValid = false;
+                validationResponse.Message = ex.Message;
+                return StatusCode(500, validationResponse);
             }
         }
 

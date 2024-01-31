@@ -2,6 +2,8 @@
 {
     public class GetTaskResponse
     {
+        public bool IsValid { get; set; }
+        public string Message { get; set; }
         public long Id { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
