@@ -11,7 +11,9 @@ namespace BS23_SC24_Assignment_Backend.validators
 
             string message = "";
 
-            if (request.Title == "" || request.Description == "" || request.Status == "") // Empty Input Field Case 
+            if (string.IsNullOrWhiteSpace(request.Title) ||
+                string.IsNullOrWhiteSpace(request.Description) ||
+                string.IsNullOrWhiteSpace(request.Status)) // Empty Input Field Case 
             {
                 isValid = false;
                 message = "Input fields can't be empty.";

@@ -25,7 +25,10 @@ namespace BS23_SC24_Assignment_Backend.validators
 
             string message = "";
     
-            if (request.UserName == "" || request.Email == "" || request.Password == "" || request.ConfirmPassword == "") // Empty Input Field Case 
+            if (string.IsNullOrWhiteSpace(request.UserName) ||
+                string.IsNullOrWhiteSpace(request.Email) ||
+                string.IsNullOrWhiteSpace(request.Password) ||
+                string.IsNullOrWhiteSpace(request.ConfirmPassword)) // Empty Input Field Case 
             {
                 isValid = false;
                 message = "Input fields can't be empty.";
@@ -70,7 +73,7 @@ namespace BS23_SC24_Assignment_Backend.validators
 
             string message = "";
 
-            if (request.UserName == "" || request.Password == "") // Empty Input Field Case 
+            if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Password)) // Empty Input Field Case 
             {
                 isValid = false;
                 message = "Input fields can't be empty.";
