@@ -7,6 +7,7 @@ using BS23_SC24_Assignment_Backend.validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace BS23_SC24_Assignment_Backend.Controllers
 {
@@ -31,8 +32,19 @@ namespace BS23_SC24_Assignment_Backend.Controllers
         {
             try
             {
-                List<Tasks> myTasks = _context.Tasks.Where(x => x.UserId == _authenticatedUser.Id).ToList();
-                return Ok(myTasks);
+                List <GetTaskResponse> response = _context.Tasks
+                                        .Where(x => x.UserId == _authenticatedUser.Id)
+                                        .Select(task => new GetTaskResponse
+                                        {
+                                            Id = task.Id,
+                                            Title = task.Title,
+                                            Description = task.Description,
+                                            Status = task.Status,
+                                            UserId = task.UserId
+                                        })
+                                        .ToList();
+               
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -53,22 +65,20 @@ namespace BS23_SC24_Assignment_Backend.Controllers
 
             try
             {
-                User currUser = _context.Users.FirstOrDefault(x => x.Id == _authenticatedUser.Id);
                 Tasks task = new Tasks
                 {
                     Title = request.Title,
                     Description = request.Description,
                     Status = request.Status,
-                    UserId = _authenticatedUser.Id,
-                    User = currUser
+                    UserId = _authenticatedUser.Id
                 };
                 _context.Tasks.Add(task);
                 _context.SaveChanges();
-                return Ok(task);
+                return Ok("Task added successfully");
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
     }
