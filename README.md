@@ -10,6 +10,7 @@
 ## Get the project:
 1. Clone the repository with the command: `git clone https://github.com/aburifat/BS23-SC24-Assignment-Project.git`
 
+### Clone Project
 ![](/Screenshots/clone-project.jpg)
 
 ## Run the backend of the project:
@@ -24,10 +25,13 @@
 ### appsettings.cs Configurations
 ![](/Screenshots/appsettings-config.jpg)
 
+### database Toggle in program.cs
 ![](/Screenshots/toggle-database-in-program-cs.jpg)
 
+### Package Manager Console
 ![](/Screenshots/package-manager-console.jpg)
 
+### IIS Express
 ![](/Screenshots/select-iis-express.jpg)
 
 ## Run the frontend of the project:
@@ -42,41 +46,59 @@
 2. Right-click on the Project `BS23_SC24_Assignment_Backend.tests` in the Solution Explorer, then select `Run Tests`.
 3. Alternatively, run the test from: `Test > Run All Tests`.
 
+### Run Unit Tests
 ![](/Screenshots/run-unit-test.jpg)
 
 ## API Requests and Responses
 The images below show some API calls using Postman
 
+### API Register
 ![](/Screenshots/api-register.jpg)
 
+### API Login
 ![](/Screenshots/api-login.jpg)
 
+### API JWT Auth Bearer Token
 ![](/Screenshots/jwt-token-in-header.jpg)
 
+### API Get Tasks List
 ![](/Screenshots/api-get-task-list.jpg)
 
+### API Get Task by ID
 ![](/Screenshots/api-get-task-by-id.jpg)
 
+### API Create Task
 ![](/Screenshots/api-create-task.jpg)
 
+### API Update Task
 ![](/Screenshots/api-update-task.jpg)
 
+### API Delete Task
 ![](/Screenshots/api-delete-task.jpg)
 
 ## Frontend Views of the Project
+Navigation between the pages is automated for authorization. The user must log in before the task pages, and else login page will automatically display.
 
+### Register Page
 ![](/Screenshots/frontend-register.jpg)
 
+### Login Page
 ![](/Screenshots/frontend-login.jpg)
 
+### My Task List Page
 ![](/Screenshots/frontend-my-task-list.jpg)
 
+### All Task List Page(Admin)
 ![](/Screenshots/frontend-admin-all-task-list.jpg)
 
+### Create Task Page
 ![](/Screenshots/frontend-create-task.jpg)
 
+### Update Task Page
 ![](/Screenshots/frontend-update-task.jpg)
 
+### Delete Task Confirmation
 ![](/Screenshots/frontend-delete-task.jpg)
 
+### Logout Confirmation
 ![](/Screenshots/frontend-logout.jpg)
