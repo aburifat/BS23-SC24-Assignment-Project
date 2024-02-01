@@ -107,6 +107,8 @@ namespace BS23_SC24_Assignment_Backend.Controllers
                     .. _context.Tasks
                     .Select(task => new GetTaskResponse
                     {
+                        IsValid = true,
+                        Message = "Task updated successfully",
                         Id = task.Id,
                         Title = task.Title,
                         Description = task.Description,
