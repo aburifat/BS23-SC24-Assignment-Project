@@ -5,6 +5,8 @@ VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BS23-SC24-Assignment-Backend", "BS23-SC24-Assignment-Backend.csproj", "{49A4324C-B925-4F86-A681-7BF15A2F78AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BS23-SC24-Assignment-Backend.tests", "..\BS23-SC24-Assignment-Backend.test\BS23-SC24-Assignment-Backend.tests.csproj", "{9E197E22-217F-4BA8-BABE-A605E0BADB16}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{49A4324C-B925-4F86-A681-7BF15A2F78AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49A4324C-B925-4F86-A681-7BF15A2F78AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49A4324C-B925-4F86-A681-7BF15A2F78AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E197E22-217F-4BA8-BABE-A605E0BADB16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E197E22-217F-4BA8-BABE-A605E0BADB16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E197E22-217F-4BA8-BABE-A605E0BADB16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E197E22-217F-4BA8-BABE-A605E0BADB16}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
