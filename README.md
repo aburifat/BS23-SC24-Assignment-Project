@@ -49,6 +49,9 @@
 ### Run Unit Tests
 ![](/Screenshots/run-unit-test.jpg)
 
+### Unit Tests Result
+![](/Screenshots/unit-test-result.jpg)
+
 ## API Requests and Responses
 The images below show some API calls using Postman
 
