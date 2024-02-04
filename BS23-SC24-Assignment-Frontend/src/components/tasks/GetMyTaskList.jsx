@@ -23,7 +23,7 @@ export default function GetMyTaskList() {
   const fetchTasks = async () => {
     try {
       const response = await GetMyTasksService();
-      setTasks(response.data);
+      setTasks(response.data.taskList);
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }

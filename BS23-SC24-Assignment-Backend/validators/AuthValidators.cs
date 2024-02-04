@@ -19,73 +19,75 @@ namespace BS23_SC24_Assignment_Backend.validators
             return MyEmailRegex().IsMatch(email);
         }
 
-        public ValidationResponse UserRegistrationRequestValidator(UserRegistrationRequest request)
+        public BaseResponse UserRegistrationRequestValidator(UserRegistrationRequest request)
         {
-            bool isValid = true;
+            bool isValid = false;
 
             string message = "";
     
             if (string.IsNullOrWhiteSpace(request.UserName) ||
                 string.IsNullOrWhiteSpace(request.Email) ||
                 string.IsNullOrWhiteSpace(request.Password) ||
-                string.IsNullOrWhiteSpace(request.ConfirmPassword)) // Empty Input Field Case 
+                string.IsNullOrWhiteSpace(request.ConfirmPassword))
             {
-                isValid = false;
                 message = "Input fields can't be empty.";
             }
-            else if (request.Password != request.ConfirmPassword) // Password and Confirm Password didn't match
+            else if (request.Password != request.ConfirmPassword)
             {
-                isValid = false;
                 message = "Both Password Didn't Match";
             }
-            else if (!IsStrongPassword(request.Password)) // Weak Password
+            else if (!IsStrongPassword(request.Password))
             {
-                isValid = false;
                 message = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.";
             }
-            else if (!IsValidEmail(request.Email)) // Invalid Email
+            else if (!IsValidEmail(request.Email))
             {
-                isValid = false;
                 message = "Invalid email format. Please provide a valid email address.";
             }
-            else if (_context.Users.Where(x => x.UserName == request.UserName).Any()) // Duplicate UserName
+            else if (_context.Users.Where(x => x.UserName == request.UserName).Any())
             {
-                isValid = false;
                 message = "Username already taken. Please try another one.";
             }
-            else if (_context.Users.Where(x => x.Email == request.Email).Any()) // Duplicate Email Address
+            else if (_context.Users.Where(x => x.Email == request.Email).Any())
             {
-                isValid = false;
                 message = "Email is in use. Try with another Email.";
             }
-
-            ValidationResponse validationResponse = new()
+            else
             {
+                isValid = true;
+            }
+
+            BaseResponse validationResponse = new()
+            {
+                StatusCode = (isValid) ? 200 : 400,
                 IsValid = isValid,
                 Message = message
             };
             return validationResponse;
         }
 
-        public ValidationResponse UserLoginRequestValidator(UserLoginRequest request)
+        public UserLoginResponse UserLoginRequestValidator(UserLoginRequest request)
         {
-            bool isValid = true;
+            bool isValid = false;
 
             string message = "";
 
             if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Password)) // Empty Input Field Case 
             {
-                isValid = false;
                 message = "Input fields can't be empty.";
             }
             else if (!IsStrongPassword(request.Password)) // Weak Password
             {
-                isValid = false;
                 message = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.";
             }
-
-            ValidationResponse validationResponse = new()
+            else
             {
+                isValid = true;
+            }
+
+            UserLoginResponse validationResponse = new()
+            {
+                StatusCode = (isValid) ? 200 : 400,
                 IsValid = isValid,
                 Message = message
             };

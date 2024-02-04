@@ -5,22 +5,22 @@ namespace BS23_SC24_Assignment_Backend.validators
 {
     public class TasksValidators
     {
-        public ValidationResponse CreateUpdateTasksValidator(CreateUpdateTaskRequest request)
+        public GetTaskResponse CreateUpdateTasksValidator(CreateUpdateTaskRequest request)
         {
             bool isValid = true;
-
             string message = "";
 
             if (string.IsNullOrWhiteSpace(request.Title) ||
                 string.IsNullOrWhiteSpace(request.Description) ||
-                string.IsNullOrWhiteSpace(request.Status)) // Empty Input Field Case 
+                string.IsNullOrWhiteSpace(request.Status))
             {
                 isValid = false;
                 message = "Input fields can't be empty.";
             }
 
-            ValidationResponse validationResponse = new()
+            GetTaskResponse validationResponse = new()
             {
+                StatusCode = (isValid) ? 200 : 400,
                 IsValid = isValid,
                 Message = message,
             };

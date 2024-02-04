@@ -1,6 +1,8 @@
 
 using BS23_SC24_Assignment_Backend.Context;
+using BS23_SC24_Assignment_Backend.Managers.Auth;
 using BS23_SC24_Assignment_Backend.Managers.Security;
+using BS23_SC24_Assignment_Backend.Managers.Task;
 using BS23_SC24_Assignment_Backend.validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -16,11 +18,13 @@ namespace BS23_SC24_Assignment_Backend
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            var corsAllowedOrigins = builder.Configuration.GetSection("CrosOptions:Origins").Get<string[]>();
+
             builder.Services.AddCors(options =>
             {
                 options.AddDefaultPolicy(builder =>
                 {
-                    builder.WithOrigins("http://localhost:5173", "https://localhost:5173").AllowAnyMethod().AllowAnyHeader();
+                    builder.WithOrigins(corsAllowedOrigins).AllowAnyMethod().AllowAnyHeader();
                 });
             });
 
@@ -59,10 +63,13 @@ namespace BS23_SC24_Assignment_Backend
             //Validators
             builder.Services.AddScoped<AuthValidators>();
             builder.Services.AddScoped<TasksValidators>();
+            builder.Services.AddScoped<AuthUtils>();
 
             //Managers
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
+            builder.Services.AddScoped<IAuthManager, AuthManager>();
+            builder.Services.AddScoped<ITaskManager, TaskManager>();
 
             var app = builder.Build();
 
